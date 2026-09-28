@@ -58,8 +58,12 @@ rows=$("$H" api snapshot | jq -r '
 
 # Start on the pane the picker was opened from.
 start=$(awk -F'\t' -v t="$target" '$1 == t { print NR; exit }' <<<"$rows")
+# Under a CJK locale fzf counts ambiguous-width glyphs (· › │ ─ ○) as two columns, while herdr's
+# terminal draws them as one, so rows and the preview misalign and leave stale cells behind.
+export RUNEWIDTH_EASTASIAN="${RUNEWIDTH_EASTASIAN:-0}"
 # Look-and-feel defaults go through FZF_DEFAULT_OPTS so fzf_opts from pick.conf can override them.
-pick=$(FZF_DEFAULT_OPTS="--layout=reverse --prompt='herdr> ' --preview-window='right,55%,border-left,<120(down,50%,border-top)' \
+# The preview drops below the list only when a right-side preview would be under 50 columns.
+pick=$(FZF_DEFAULT_OPTS="--layout=reverse --prompt='herdr> ' --preview-window='right,55%,border-left,<50(down,50%,border-top)' \
 --header='type to search · enter: insert · esc: cancel' $(conf fzf_opts)" \
   fzf <<<"$rows" --ansi --delimiter='\t' --with-nth=3 --bind "load:pos(${start:-1})" \
   --preview "bash $(printf %q "$self") preview {1}") || exit 0
