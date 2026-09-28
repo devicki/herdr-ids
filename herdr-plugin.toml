@@ -1,9 +1,9 @@
 id = "devicki.ids"
 name = "ids"
-version = "0.1.0"
+version = "0.2.0"
 min_herdr_version = "0.9.1"
 platforms = ["linux", "macos"]
-description = "Show pane and workspace ids (w9:p1, w9) in the sidebar via $pane_id and $workspace_id tokens."
+description = "Show pane and workspace ids in the sidebar, and pick a space, tab or pane to type its id into your agent."
 
 # Tokens are runtime metadata, so write them all once the server is up, then keep them in step
 # as panes appear or move (a cross-workspace move changes the pane id).
@@ -14,6 +14,21 @@ command = ["bash", "ids.sh"]
 id = "sync"
 title = "ids: resync tokens"
 command = ["bash", "ids.sh"]
+
+[[actions]]
+id = "pick"
+title = "ids: pick a target and type it"
+contexts = ["pane"]
+command = ["bash", "pick.sh", "open"]
+
+# Keybindings can only invoke actions, so `pick` opens this popup for the focused pane.
+[[panes]]
+id = "picker"
+title = "ids"
+placement = "popup"
+width = "80%"
+height = "60%"
+command = ["bash", "pick.sh"]
 
 [[events]]
 on = "pane.created"
