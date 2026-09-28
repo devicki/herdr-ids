@@ -1,0 +1,28 @@
+id = "devicki.ids"
+name = "ids"
+version = "0.1.0"
+min_herdr_version = "0.9.1"
+platforms = ["linux", "macos"]
+description = "Show pane and workspace ids (w9:p1, w9) in the sidebar via $pane_id and $workspace_id tokens."
+
+# Tokens are runtime metadata, so write them all once the server is up, then keep them in step
+# as panes appear or move (a cross-workspace move changes the pane id).
+[[startup]]
+command = ["bash", "ids.sh"]
+
+[[actions]]
+id = "sync"
+title = "ids: resync tokens"
+command = ["bash", "ids.sh"]
+
+[[events]]
+on = "pane.created"
+command = ["bash", "ids.sh"]
+
+[[events]]
+on = "pane.moved"
+command = ["bash", "ids.sh"]
+
+[[events]]
+on = "workspace.created"
+command = ["bash", "ids.sh"]
