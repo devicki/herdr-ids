@@ -66,7 +66,7 @@ height = 70%
 fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 ```
 
-Use `--preview-window=hidden` in `fzf_opts` to turn the preview off.
+By default the popup is 90% wide and 70% tall, and the preview takes the right 55% (the bottom half when the popup is under 120 columns). Use `--preview-window=hidden` in `fzf_opts` to turn the preview off.
 
 ## How it works
 
