@@ -23,8 +23,10 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids
+herdr plugin install devicki/herdr-ids --ref v0.3.3
 ```
+
+`--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
 
 The plugin writes the ids when the Herdr server starts. If the server is already running, write them once now:
 
@@ -104,8 +106,10 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 
 ## Update and uninstall
 
+Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
+
 ```sh
-herdr plugin install devicki/herdr-ids --yes   # reinstall to update
+herdr plugin install devicki/herdr-ids --ref v0.3.3 --yes
 herdr plugin uninstall devicki.ids
 ```
 
@@ -124,6 +128,8 @@ Tokens are runtime metadata, so the startup hook writes them for every pane and 
 herdr plugin link .
 ./test.sh   # throwaway named session: startup, new pane, cross-workspace move, restart
 ```
+
+To release, bump `version` in `herdr-plugin.toml`, update the `--ref` in both READMEs, commit, then `git tag -a vX.Y.Z -m vX.Y.Z && git push origin vX.Y.Z`.
 
 `docs/demo/record.sh` re-records `docs/demo.svg` in an isolated Herdr with made-up workspaces (needs `tmux`).
 

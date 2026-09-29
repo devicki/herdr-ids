@@ -23,8 +23,10 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ID를 표시할 페인이 있는 머신이나 계정마다 설치하세요.
 
 ```sh
-herdr plugin install devicki/herdr-ids
+herdr plugin install devicki/herdr-ids --ref v0.3.3
 ```
+
+`--ref`는 설치할 릴리스를 고정해요. 빼면 `main` 브랜치의 최신 코드가 설치돼요. 릴리스 목록은 [tags](https://github.com/devicki/herdr-ids/tags)에서 볼 수 있어요.
 
 ID는 Herdr 서버가 시작될 때 기록돼요. 서버가 이미 떠 있다면 지금 한 번 직접 기록하세요.
 
@@ -104,8 +106,10 @@ fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 
 ## 업데이트와 삭제
 
+Herdr에는 업데이트 명령이 없어서, 새 태그로 다시 설치하면 돼요. 다시 설치해도 `pick.conf`와 켜짐/꺼짐 상태는 그대로 남아요. 설치된 버전은 `herdr plugin list`로 확인할 수 있어요.
+
 ```sh
-herdr plugin install devicki/herdr-ids --yes   # 다시 설치하면 최신 버전으로 바뀌어요
+herdr plugin install devicki/herdr-ids --ref v0.3.3 --yes
 herdr plugin uninstall devicki.ids
 ```
 
@@ -124,6 +128,8 @@ herdr plugin uninstall devicki.ids
 herdr plugin link .
 ./test.sh   # 임시 세션에서 서버 시작, 새 페인, 워크스페이스 간 이동, 재시작을 확인해요
 ```
+
+릴리스할 때는 `herdr-plugin.toml`의 `version`을 올리고, 두 README의 `--ref`를 바꿔 커밋한 뒤 `git tag -a vX.Y.Z -m vX.Y.Z && git push origin vX.Y.Z`를 실행하세요.
 
 `docs/demo/record.sh`는 가상의 워크스페이스로 구성한 격리된 Herdr에서 `docs/demo.svg`를 다시 녹화해요(`tmux` 필요).
 
