@@ -1,20 +1,44 @@
 # herdr-ids
 
-Show [Herdr](https://herdr.dev) pane and workspace ids (`w9:p1`, `w9`) in the sidebar, and pick any space, tab or pane to type its id into your agent ("check the tests in herdr:dev-server(w1:p2)").
+English | [한국어](README.ko.md)
+
+Show [Herdr](https://herdr.dev) pane and workspace ids (`w9:p1`, `w9`) in the sidebar, and pick any space, tab or pane to type its id into your agent: "check the tests in herdr:dev-server(w1:p2)".
+
+```
+herdr> dev                                   │ $ npm run dev
+> w1:p2   api / 1 · shell / dev-server       │ server listening on :3000
+  w2:t1   web / dev                          │ $
+```
 
 Herdr has no built-in sidebar token for ids. This plugin reports them as custom metadata tokens, `$pane_id` on every pane and `$workspace_id` on every workspace, and keeps them current.
 
-## Install
+## Requirements
+
+- Herdr 0.9.1 or newer, on Linux or macOS
+- `bash` and `jq`
+- [`fzf`](https://github.com/junegunn/fzf) for the picker
+
+## Setup
+
+The examples below start from Herdr's default configuration. Herdr's config file is `~/.config/herdr/config.toml`.
+
+### 1. Install
+
+Run this on every machine or account whose panes you want labeled:
 
 ```sh
 herdr plugin install devicki/herdr-ids
 ```
 
-Requires `bash` and `jq` (plus `fzf` for the picker). Install it on every machine or account whose panes you want labeled.
+The plugin writes the ids when the Herdr server starts. If the server is already running, write them once now:
 
-## Show the ids
+```sh
+herdr plugin action invoke devicki.ids.sync
+```
 
-Add the tokens to your sidebar rows in `config.toml`. When you attach to remote machines, this goes in the config of the client that draws the sidebar, for example your laptop. Start from your current rows (defaults shown here) and put the tokens where you like:
+### 2. Show the ids in the sidebar
+
+The tokens stay invisible until your sidebar rows use them. These are Herdr's default rows with the two tokens added:
 
 ```toml
 [ui.sidebar.agents]
@@ -30,21 +54,13 @@ rows = [
 ]
 ```
 
-Then run `herdr server reload-config` on that machine, or restart Herdr there if the sidebar does not pick it up.
+If you already customized `rows`, add `"$pane_id"` or `{ token = "$pane_id", dim = true }` to whichever row you like instead.
 
-## Pick a target and type it
+When you attach to remote machines from a laptop, the laptop draws the sidebar, so this goes in the laptop's config. The plugin itself runs on each remote machine (step 1).
 
-`ids: pick a target and type it` opens a popup with every space, tab and pane:
+### 3. Bind the picker to a key
 
-```
-herdr> dev                                   │ $ npm run dev
-> w1:p2   api / 1 · shell / dev-server       │ server listening on :3000
-  w2:t1   web / dev                          │ $
-```
-
-Type to fuzzy-search the id and the `space / tab / pane` path. The right side previews the highlighted pane's screen. When a pane's name is already part of its tab's title, as with auto-titled tabs, the pane shows its agent instead so the line does not repeat itself. Enter types `herdr:dev-server(w1:p2) ` into the pane you opened the picker from, without submitting it, so you can finish telling your agent what to do there. Esc cancels. The cursor starts on your own pane. This needs [`fzf`](https://github.com/junegunn/fzf).
-
-Bind it to a key in `config.toml`:
+`prefix+i` is free in Herdr's default keymap (the prefix is `ctrl+b` unless you changed it):
 
 ```toml
 [[keys.command]]
@@ -54,7 +70,29 @@ command = "devicki.ids.pick"
 description = "pick a herdr target"
 ```
 
-Customize it in `$(herdr plugin config-dir devicki.ids)/pick.conf`, one `key = value` per line. Every key is optional:
+When you work on a remote machine, add this to that machine's config.
+
+### 4. Reload
+
+```sh
+herdr server reload-config
+```
+
+Restart Herdr if the sidebar does not pick up the change.
+
+## Picking a target
+
+Press the key in the pane you are typing into, for example an agent's prompt:
+
+- Type to fuzzy-search the id and the `space / tab / pane` path. The cursor starts on your own pane.
+- The right side previews the highlighted pane's screen.
+- Enter types `herdr:dev-server(w1:p2) ` into your pane without submitting it, so you can finish the sentence. Esc cancels.
+
+When a pane's name is already part of its tab's title, as with auto-titled tabs, the line shows the pane's agent instead so it does not repeat itself. The picker lists the Herdr server it runs on, so with several machines you see the current machine's panes.
+
+## Settings
+
+Customize the picker in `$(herdr plugin config-dir devicki.ids)/pick.conf`, one `key = value` per line. Every key is optional:
 
 ```
 # what Enter types; {name} and {id} are filled in
@@ -66,11 +104,23 @@ height = 70%
 fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 ```
 
-By default the popup is 90% wide and 70% tall, and the preview takes the right 55% (it moves below the list when the right side would be narrower than 50 columns). Use `--preview-window=hidden` in `fzf_opts` to turn the preview off.
+By default the popup is 90% wide and 70% tall, and the preview takes the right 55%. The preview moves below the list when the right side would be narrower than 50 columns. Use `--preview-window=hidden` in `fzf_opts` to turn it off.
+
+## Update and uninstall
+
+```sh
+herdr plugin install devicki/herdr-ids --yes   # reinstall to update
+herdr plugin uninstall devicki.ids
+```
 
 ## How it works
 
-Tokens are runtime metadata, so the startup hook writes them for every pane and workspace. The `pane.created`, `pane.moved` and `workspace.created` hooks resync them, since a move to another workspace changes the pane id. Run `ids: resync tokens` if anything looks stale.
+Tokens are runtime metadata, so the startup hook writes them for every pane and workspace. The `pane.created`, `pane.moved` and `workspace.created` hooks resync them, since a move to another workspace changes the pane id. Run `ids: resync tokens` (`devicki.ids.sync`) if anything looks stale.
+
+## Troubleshooting
+
+- **No ids in the sidebar**: check that step 2 went into the config of the Herdr that draws your sidebar, and run `herdr plugin action invoke devicki.ids.sync` on the machine whose panes are missing them.
+- **Garbled rows under a Korean, Japanese or Chinese locale**: fzf counts ambiguous-width glyphs such as `·`, `›` and `│` as two columns in these locales, while Herdr draws them as one. The picker sets `RUNEWIDTH_EASTASIAN=0` for fzf to match. If your setup really draws them two columns wide, set `RUNEWIDTH_EASTASIAN=1` in the Herdr server's environment.
 
 ## Development
 
