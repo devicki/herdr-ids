@@ -2,13 +2,9 @@
 
 English | [한국어](README.ko.md)
 
-Show [Herdr](https://herdr.dev) pane and workspace ids (`w9:p1`, `w9`) in the sidebar, and pick any space, tab or pane to type its id into your agent: "check the tests in herdr:dev-server(w1:p2)".
+![herdr-ids: ids in the sidebar, and picking a pane to hand to an agent](docs/demo.svg)
 
-```
-herdr> dev                                   │ $ npm run dev
-> w1:p2   api / 1 · shell / dev-server       │ server listening on :3000
-  w2:t1   web / dev                          │ $
-```
+Show [Herdr](https://herdr.dev) pane and workspace ids (`w9:p1`, `w9`) in the sidebar, and pick any space, tab or pane to type its id into your agent: "check the tests in herdr:dev-server(w1:p2)".
 
 Herdr has no built-in sidebar token for ids. This plugin reports them as custom metadata tokens, `$pane_id` on every pane and `$workspace_id` on every workspace, and keeps them current.
 
@@ -88,7 +84,7 @@ Press the key in the pane you are typing into, for example an agent's prompt:
 - The right side previews the highlighted pane's screen.
 - Enter types `herdr:dev-server(w1:p2) ` into your pane without submitting it, so you can finish the sentence. Esc cancels.
 
-When a pane's name is already part of its tab's title, as with auto-titled tabs, the line shows the pane's agent instead so it does not repeat itself. The picker lists the Herdr server it runs on, so with several machines you see the current machine's panes.
+When a pane's name is already part of its tab's title, as with auto-titled tabs or a tab named after its only pane, the line adds only the pane's agent, if it has one, instead of repeating the name. The picker lists the Herdr server it runs on, so with several machines you see the current machine's panes.
 
 ## Settings
 
@@ -128,6 +124,8 @@ Tokens are runtime metadata, so the startup hook writes them for every pane and 
 herdr plugin link .
 ./test.sh   # throwaway named session: startup, new pane, cross-workspace move, restart
 ```
+
+`docs/demo/record.sh` re-records `docs/demo.svg` in an isolated Herdr with made-up workspaces (needs `tmux`).
 
 ## License
 

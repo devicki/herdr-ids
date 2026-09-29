@@ -42,7 +42,8 @@ command -v fzf >/dev/null || { echo "ids: fzf is not installed" >&2; read -r -n1
 self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 
 # One line per item in tree order: id, name, and the line shown (colored id, dimmed ancestors).
-# Auto-titled tabs already carry the pane's name, so such a pane shows its agent instead.
+# A pane whose name the tab title already carries (auto-titled tabs, a tab named after its only
+# pane) adds just its agent, if any, instead of repeating the name.
 rows=$("$H" api snapshot | jq -r '
   def id($i): "\u001b[36m\(($i + "       ")[0:7])\u001b[0m ";
   def dim($s): "\u001b[2m\($s)\u001b[0m";
@@ -52,8 +53,8 @@ rows=$("$H" api snapshot | jq -r '
     ($s.tabs[] | select(.workspace_id == $w.workspace_id) as $t
       | [$t.tab_id, $t.label, id($t.tab_id) + dim("\($w.label) / ") + $t.label],
         ($s.panes[] | select(.tab_id == $t.tab_id) | (.label // .agent // "shell") as $n
-          | (if ($t.label | contains($n)) then .agent // "shell" else $n end) as $leaf
-          | [.pane_id, $n, id(.pane_id) + dim("\($w.label) / \($t.label) / ") + $leaf]))
+          | (if ($t.label | contains($n)) then .agent else $n end) as $leaf
+          | [.pane_id, $n, id(.pane_id) + dim("\($w.label) / ") + if $leaf then dim("\($t.label) / ") + $leaf else $t.label end]))
   | @tsv') || exit 1
 
 # Start on the pane the picker was opened from.
@@ -63,9 +64,9 @@ start=$(awk -F'\t' -v t="$target" '$1 == t { print NR; exit }' <<<"$rows")
 export RUNEWIDTH_EASTASIAN="${RUNEWIDTH_EASTASIAN:-0}"
 # Look-and-feel defaults go through FZF_DEFAULT_OPTS so fzf_opts from pick.conf can override them.
 # The preview drops below the list only when a right-side preview would be under 50 columns.
-pick=$(FZF_DEFAULT_OPTS="--layout=reverse --prompt='herdr> ' --preview-window='right,55%,border-left,<50(down,50%,border-top)' \
+pick=$(FZF_DEFAULT_OPTS="--layout=reverse --no-hscroll --prompt='herdr> ' --preview-window='right,55%,border-left,<50(down,50%,border-top)' \
 --header='type to search · enter: insert · esc: cancel' $(conf fzf_opts)" \
-  fzf <<<"$rows" --ansi --delimiter='\t' --with-nth=3 --bind "load:pos(${start:-1})" \
+  fzf <<<"$rows" --ansi --delimiter='\t' --with-nth=3 --sync --bind "start:pos(${start:-1}),change:first" \
   --preview "bash $(printf %q "$self") preview {1}") || exit 0
 
 IFS=$'\t' read -r id name _ <<<"$pick"
