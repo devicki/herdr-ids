@@ -39,6 +39,10 @@ esac
 
 target="${IDS_TARGET:?run through the ids: pick action}"
 command -v fzf >/dev/null || { echo "ids: fzf is not installed" >&2; read -r -n1; exit 1; }
+# The start event and the pos/first actions arrived in fzf 0.36; older ones exit on the options.
+v=$(fzf --version | awk '{print $1}')
+awk -v v="$v" 'BEGIN { split(v, n, "."); exit !(n[1] > 0 || n[2] >= 36) }' ||
+  { echo "ids: the picker needs fzf 0.36 or newer (found $v)" >&2; read -r -n1; exit 1; }
 self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 
 # One line per item in tree order: id, name, and the line shown (colored id, dimmed ancestors).

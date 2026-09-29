@@ -10,9 +10,9 @@ Herdr has no built-in sidebar token for ids. This plugin reports them as custom 
 
 ## Requirements
 
-- Herdr 0.9.1 or newer, on Linux or macOS
-- `bash` and `jq`
-- [`fzf`](https://github.com/junegunn/fzf) for the picker
+- Herdr 0.9.1 or newer, on Linux or macOS. Windows is not supported; run Herdr in WSL there.
+- `bash` (3.2, the macOS default, is enough) and `jq`
+- [`fzf`](https://github.com/junegunn/fzf) 0.36 or newer for the picker. Ubuntu 22.04 ships 0.29, which is too old; get a newer one from Homebrew or the fzf releases.
 
 ## Setup
 
@@ -23,7 +23,7 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.3
+herdr plugin install devicki/herdr-ids --ref v0.3.4
 ```
 
 `--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
@@ -109,7 +109,7 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.3 --yes
+herdr plugin install devicki/herdr-ids --ref v0.3.4 --yes
 herdr plugin uninstall devicki.ids
 ```
 

@@ -10,9 +10,9 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 
 ## 필요한 것
 
-- Herdr 0.9.1 이상 (Linux, macOS)
-- `bash`, `jq`
-- [`fzf`](https://github.com/junegunn/fzf) (대상 선택 팝업에 필요)
+- Herdr 0.9.1 이상 (Linux, macOS). Windows는 지원하지 않으니 WSL에서 Herdr를 실행하세요.
+- `bash`(macOS 기본인 3.2로 충분해요), `jq`
+- [`fzf`](https://github.com/junegunn/fzf) 0.36 이상 (대상 선택 팝업에 필요). Ubuntu 22.04의 기본 fzf는 0.29라 너무 오래됐어요. Homebrew나 fzf 릴리스에서 새 버전을 설치하세요.
 
 ## 설정
 
@@ -23,7 +23,7 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ID를 표시할 페인이 있는 머신이나 계정마다 설치하세요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.3
+herdr plugin install devicki/herdr-ids --ref v0.3.4
 ```
 
 `--ref`는 설치할 릴리스를 고정해요. 빼면 `main` 브랜치의 최신 코드가 설치돼요. 릴리스 목록은 [tags](https://github.com/devicki/herdr-ids/tags)에서 볼 수 있어요.
@@ -109,7 +109,7 @@ fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 Herdr에는 업데이트 명령이 없어서, 새 태그로 다시 설치하면 돼요. 다시 설치해도 `pick.conf`와 켜짐/꺼짐 상태는 그대로 남아요. 설치된 버전은 `herdr plugin list`로 확인할 수 있어요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.3 --yes
+herdr plugin install devicki/herdr-ids --ref v0.3.4 --yes
 herdr plugin uninstall devicki.ids
 ```
 
