@@ -87,30 +87,33 @@ def render_line(cells):
     """SVG for one screen row at y=0: background runs, then text runs."""
     out = []
     col = 0
-    runs = []  # (start col, width, fg, bg, bold, dim, italic, under, text)
+    runs = []  # (start col, width, fg, bg, bold, dim, italic, under, chars: one per cell)
     while col < len(cells):
         ch, (fg, bg, bold, dim, italic, under, rev) = cells[col]
         if rev:
             fg, bg = bg or BG, fg or FG
         key = (fg, bg, bold, dim, italic, under)
-        start, text = col, ""
+        start, chars = col, []
         while col < len(cells):
             c, s = cells[col]
             f, b = (s[1] or BG, s[0] or FG) if s[6] else (s[0], s[1])
             if (f, b) + s[2:6] != key:
                 break
-            text += c
+            chars.append(c)
             col += 1
-        runs.append((start, col - start) + key + (text,))
+        runs.append((start, col - start) + key + (chars,))
     for start, width, fg, bg, *_ in runs:
         if bg and bg != BG:
             out.append('<rect x="%g" width="%g" height="%d" fill="%s"/>' % (start * CW, width * CW, LH, bg))
-    for start, width, fg, bg, bold, dim, italic, under, text in runs:
-        lead = len(text) - len(text.lstrip(" "))
-        body = text.strip(" ")
-        if not body:
-            continue
-        span = width - lead - (len(text) - len(text.rstrip(" ")))
+    for start, width, fg, bg, bold, dim, italic, under, chars in runs:
+      # One <text> per stretch of words, single blanks allowed: a run of blanks inside a text
+      # element lets browsers that collapse whitespace squeeze its natural width, and
+      # textLength then blows the glyphs up. chars has one entry per cell ("" for a wide
+      # glyph's second cell), so match positions are cells.
+      mask = "".join(" " if c == " " else "x" for c in chars)
+      for m in re.finditer(r"x+(?: x+)*", mask):
+        body = "".join(chars[m.start():m.end()])
+        lead, span = m.start(), m.end() - m.start()
         attrs = ""
         if (fg or FG) != FG: attrs += ' fill="%s"' % (fg or FG)
         if bold: attrs += ' font-weight="bold"'
@@ -151,7 +154,7 @@ def main(src, dst):
                    for i, (ms, _) in enumerate(frames))
     w, h = COLS * CW + 2 * PAD, fh + TOP + PAD
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{w:g}" height="{h}" viewBox="0 0 {w:g} {h}" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="{FS}" fill="{FG}" xml:space="preserve">
-<style>.film{{animation:play {total}ms step-end infinite}}@keyframes play{{{keys}}}</style>
+<style>text{{white-space:pre}}.film{{animation:play {total}ms step-end infinite}}@keyframes play{{{keys}}}</style>
 <defs>{"".join(defs)}</defs>
 <rect width="{w:g}" height="{h}" rx="8" fill="{BG}"/>
 <circle cx="20" cy="18" r="6" fill="#ff5f57"/><circle cx="40" cy="18" r="6" fill="#febc2e"/><circle cx="60" cy="18" r="6" fill="#28c840"/>
