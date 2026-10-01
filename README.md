@@ -4,9 +4,9 @@ English | [한국어](README.ko.md)
 
 ![herdr-ids: ids in the sidebar, and picking a pane to hand to an agent](docs/demo.svg)
 
-Show [Herdr](https://herdr.dev) pane and workspace ids (`w9:p1`, `w9`) in the sidebar, and pick any space, tab or pane to type its id into your agent: "check the tests in herdr:dev-server(w1:p2)".
+Show [Herdr](https://herdr.dev) pane, tab and workspace ids (`w9:p1`, `w9:t2`, `w9`) in the sidebar, and pick any space, tab or pane to type its id into your agent: "check the tests in herdr:dev-server(w1:p2)".
 
-Herdr has no built-in sidebar token for ids. This plugin reports them as custom metadata tokens, `$pane_id` on every pane and `$workspace_id` on every workspace, and keeps them current.
+Herdr has no built-in sidebar token for ids. This plugin reports them as custom metadata tokens, `$pane_id` and `$tab_id` (its tab) on every pane and `$workspace_id` on every workspace, and keeps them current. Herdr takes no metadata on tabs themselves, so the tab id rides on each pane's row.
 
 ## Requirements
 
@@ -23,7 +23,7 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.5
+herdr plugin install devicki/herdr-ids --ref v0.4.0
 ```
 
 `--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
@@ -52,7 +52,7 @@ rows = [
 ]
 ```
 
-If you already customized `rows`, add `"$pane_id"` or `{ token = "$pane_id", dim = true }` to whichever row you like instead.
+To see the tab id as well, put `{ token = "$tab_id", dim = true }` after `"tab"` in the first agents row. If you already customized `rows`, add `"$pane_id"`, `"$tab_id"` or `{ token = "$pane_id", dim = true }` to whichever row you like instead.
 
 When you attach to remote machines from a laptop, the laptop draws the sidebar, so this goes in the laptop's config. The plugin itself runs on each remote machine (step 1).
 
@@ -109,7 +109,7 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.5 --yes
+herdr plugin install devicki/herdr-ids --ref v0.4.0 --yes
 herdr plugin uninstall devicki.ids
 ```
 

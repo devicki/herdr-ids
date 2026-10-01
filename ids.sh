@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Report every pane's and workspace's public id as a sidebar token: $pane_id, $workspace_id.
+# Report every pane's and workspace's public id as a sidebar token: $pane_id, $workspace_id. Herdr
+# takes no metadata on tabs, so each pane also carries its tab's id as $tab_id.
 set -uo pipefail
 
 # herdr runs plugin commands with a minimal PATH; ensure jq resolves on common installs.
@@ -27,8 +28,8 @@ if [ -n "${HERDR_PLUGIN_CONFIG_DIR:-}" ] && [ ! -e "$conf" ] && mkdir -p "$HERDR
 EOF
 fi
 
-"$H" pane list | jq -r '.result.panes[].pane_id' | while IFS= read -r p; do
-  "$H" pane report-metadata "$p" --source "$src" --token pane_id="$p" >/dev/null
+"$H" pane list | jq -r '.result.panes[] | "\(.pane_id)\t\(.tab_id // "")"' | while IFS=$'\t' read -r p t; do
+  "$H" pane report-metadata "$p" --source "$src" --token pane_id="$p" ${t:+--token tab_id="$t"} >/dev/null
 done
 "$H" workspace list | jq -r '.result.workspaces[].workspace_id' | while IFS= read -r w; do
   "$H" workspace report-metadata "$w" --source "$src" --token workspace_id="$w" >/dev/null

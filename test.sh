@@ -16,10 +16,10 @@ cleanup() {
   sleep 0.5
   herdr session delete "$HERDR_SESSION" >/dev/null 2>&1 || :
 }
-# Every pane and workspace must carry its own id as a token.
+# Every pane and workspace must carry its own id as a token, and every pane its tab's id.
 check() {
   sleep 1.5
-  bad=$(herdr pane list | jq -r '.result.panes[] | select(.tokens.pane_id != .pane_id) | .pane_id')
+  bad=$(herdr pane list | jq -r '.result.panes[] | select(.tokens.pane_id != .pane_id or .tokens.tab_id != .tab_id) | .pane_id')
   bad="$bad$(herdr workspace list | jq -r '.result.workspaces[] | select(.tokens.workspace_id != .workspace_id) | .workspace_id')"
   [ -z "$bad" ] || { echo "FAIL ($1): wrong or missing token on $bad" >&2; exit 1; }
 }
@@ -33,6 +33,8 @@ p2=$(herdr pane split "$p1" --direction right --no-focus | jq -r .result.pane.pa
 check "pane.created"
 herdr pane move "$p2" --new-workspace --no-focus >/dev/null
 check "pane.moved"
+herdr tab create --workspace "${p1%%:*}" --no-focus >/dev/null
+check "new tab"
 herdr server stop >/dev/null
 sleep 1
 up

@@ -4,9 +4,9 @@
 
 ![herdr-ids: 사이드바의 ID, 그리고 페인을 골라 에이전트에게 넘기는 과정](docs/demo.svg)
 
-[Herdr](https://herdr.dev) 사이드바에 페인·워크스페이스 ID(`w9:p1`, `w9`)를 보여 주고, 원하는 스페이스·탭·페인을 골라 그 ID를 에이전트 입력창에 넣어 주는 플러그인이에요. 예를 들어 "herdr:dev-server(w1:p2)의 테스트 결과 확인해 줘"처럼 대상을 바로 지정할 수 있어요.
+[Herdr](https://herdr.dev) 사이드바에 페인·탭·워크스페이스 ID(`w9:p1`, `w9:t2`, `w9`)를 보여 주고, 원하는 스페이스·탭·페인을 골라 그 ID를 에이전트 입력창에 넣어 주는 플러그인이에요. 예를 들어 "herdr:dev-server(w1:p2)의 테스트 결과 확인해 줘"처럼 대상을 바로 지정할 수 있어요.
 
-Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 플러그인은 모든 페인에 `$pane_id`, 모든 워크스페이스에 `$workspace_id`를 사용자 토큰으로 기록하고, 페인이 바뀔 때마다 최신 상태로 맞춰요.
+Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 플러그인은 모든 페인에 `$pane_id`와 `$tab_id`(그 페인이 속한 탭), 모든 워크스페이스에 `$workspace_id`를 사용자 토큰으로 기록하고, 페인이 바뀔 때마다 최신 상태로 맞춰요. Herdr는 탭 자체에는 메타데이터를 받지 않아서, 탭 ID는 각 페인 줄에 함께 표시해요.
 
 ## 필요한 것
 
@@ -23,7 +23,7 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ID를 표시할 페인이 있는 머신이나 계정마다 설치하세요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.5
+herdr plugin install devicki/herdr-ids --ref v0.4.0
 ```
 
 `--ref`는 설치할 릴리스를 고정해요. 빼면 `main` 브랜치의 최신 코드가 설치돼요. 릴리스 목록은 [tags](https://github.com/devicki/herdr-ids/tags)에서 볼 수 있어요.
@@ -52,7 +52,7 @@ rows = [
 ]
 ```
 
-이미 `rows`를 바꿔 쓰고 있다면, 원하는 줄에 `"$pane_id"`나 `{ token = "$pane_id", dim = true }`만 추가하면 돼요.
+탭 ID도 보려면 agents의 첫 줄에서 `"tab"` 뒤에 `{ token = "$tab_id", dim = true }`를 넣으세요. 이미 `rows`를 바꿔 쓰고 있다면, 원하는 줄에 `"$pane_id"`, `"$tab_id"`, `{ token = "$pane_id", dim = true }` 같은 항목만 추가하면 돼요.
 
 노트북에서 원격 머신에 접속해 쓰는 경우, 사이드바는 노트북 쪽 Herdr가 그려요. 그래서 이 설정은 노트북 설정 파일에 넣어야 해요. 플러그인은 원격 머신마다 설치해야 해요(1단계).
 
@@ -109,7 +109,7 @@ fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 Herdr에는 업데이트 명령이 없어서, 새 태그로 다시 설치하면 돼요. 다시 설치해도 `pick.conf`와 켜짐/꺼짐 상태는 그대로 남아요. 설치된 버전은 `herdr plugin list`로 확인할 수 있어요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.5 --yes
+herdr plugin install devicki/herdr-ids --ref v0.4.0 --yes
 herdr plugin uninstall devicki.ids
 ```
 
