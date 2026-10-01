@@ -23,7 +23,7 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.4.0
+herdr plugin install devicki/herdr-ids --ref v0.4.1
 ```
 
 `--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
@@ -85,6 +85,7 @@ Press the key in the pane you are typing into, for example an agent's prompt:
 - Type to fuzzy-search the id and the `space / tab / pane` path. The cursor starts on your own pane.
 - The right side previews the highlighted pane's screen.
 - Enter types `herdr:dev-server(w1:p2) ` into your pane without submitting it, so you can finish the sentence. Esc cancels.
+- An agent's pane goes in under its agent, `herdr:claude(w9:p1)`, not under the conversation title Herdr shows for it, which is long and keeps changing. Other panes go in under their name, or `shell`.
 
 When a pane's name is already part of its tab's title, as with auto-titled tabs or a tab named after its only pane, the line adds only the pane's agent, if it has one, instead of repeating the name. The picker lists the Herdr server it runs on, so with several machines you see the current machine's panes.
 
@@ -109,7 +110,7 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.4.0 --yes
+herdr plugin install devicki/herdr-ids --ref v0.4.1 --yes
 herdr plugin uninstall devicki.ids
 ```
 

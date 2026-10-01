@@ -55,7 +55,8 @@ self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 
 # One line per item in tree order: id, name, and the line shown (colored id, dimmed ancestors).
 # A pane whose name the tab title already carries (auto-titled tabs, a tab named after its only
-# pane) adds just its agent, if any, instead of repeating the name.
+# pane) adds just its agent, if any, instead of repeating the name. What Enter types names an
+# agent's pane by its agent: Herdr labels it with the conversation title, which is long and changes.
 # Tabs and newlines in names would break the row, so they become spaces.
 rows=$("$H" api snapshot | jq -r '
   def clean: gsub("[\t\n\r]"; " ");
@@ -69,7 +70,7 @@ rows=$("$H" api snapshot | jq -r '
       | [$t.tab_id, $tl, id($t.tab_id) + dim("\($wl) / ") + $tl],
         ($s.panes[] | select(.tab_id == $t.tab_id) | (.label // .agent // "shell" | clean) as $n
           | (if ($tl | contains($n)) then .agent else $n end) as $leaf
-          | [.pane_id, $n, id(.pane_id) + dim("\($wl) / ") + if $leaf then dim("\($tl) / ") + $leaf else $tl end]))
+          | [.pane_id, (.agent // $n | clean), id(.pane_id) + dim("\($wl) / ") + if $leaf then dim("\($tl) / ") + $leaf else $tl end]))
   | join("\t")') || exit 1
 
 # Start on the pane the picker was opened from.
