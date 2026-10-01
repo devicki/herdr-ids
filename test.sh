@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# End-to-end check on a throwaway named session: tokens after startup, a new pane, a
-# cross-workspace move, and a server restart. Needs the plugin linked first: herdr plugin link .
+# End-to-end check on a throwaway named session: tokens after startup, the pick action, a new
+# pane, a cross-workspace move, a new tab, and a server restart. Needs the plugin linked first: herdr plugin link .
 set -euo pipefail
 unset HERDR_SOCKET_PATH HERDR_ENV HERDR_PANE_ID HERDR_TAB_ID HERDR_WORKSPACE_ID
 export HERDR_SESSION=ids-test
@@ -29,6 +29,8 @@ trap cleanup EXIT
 up
 p1=$(herdr workspace create --cwd "$PWD" | jq -r .result.root_pane.pane_id)
 check "startup + workspace.created"
+HERDR_PANE_ID=$p1 bash "$(dirname "$0")/pick.sh" open ||
+  { echo "FAIL: the pick action did not open the picker cleanly" >&2; exit 1; }
 p2=$(herdr pane split "$p1" --direction right --no-focus | jq -r .result.pane.pane_id)
 check "pane.created"
 herdr pane move "$p2" --new-workspace --no-focus >/dev/null

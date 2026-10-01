@@ -23,7 +23,7 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ID를 표시할 페인이 있는 머신이나 계정마다 설치하세요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.4.1
+herdr plugin install devicki/herdr-ids --ref v0.4.2
 ```
 
 `--ref`는 설치할 릴리스를 고정해요. 빼면 `main` 브랜치의 최신 코드가 설치돼요. 릴리스 목록은 [tags](https://github.com/devicki/herdr-ids/tags)에서 볼 수 있어요.
@@ -110,7 +110,7 @@ fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 Herdr에는 업데이트 명령이 없어서, 새 태그로 다시 설치하면 돼요. 다시 설치해도 `pick.conf`와 켜짐/꺼짐 상태는 그대로 남아요. 설치된 버전은 `herdr plugin list`로 확인할 수 있어요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.4.1 --yes
+herdr plugin install devicki/herdr-ids --ref v0.4.2 --yes
 herdr plugin uninstall devicki.ids
 ```
 

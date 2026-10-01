@@ -23,7 +23,7 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.4.1
+herdr plugin install devicki/herdr-ids --ref v0.4.2
 ```
 
 `--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
@@ -110,7 +110,7 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.4.1 --yes
+herdr plugin install devicki/herdr-ids --ref v0.4.2 --yes
 herdr plugin uninstall devicki.ids
 ```
 

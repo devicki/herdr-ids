@@ -34,6 +34,7 @@ open)
     echo "ids: ${msg:-$err}" >&2
     exit 1
   }
+  exit 0
   ;;
 preview)
   case "${2:-}" in *:p*) ;; *) exit 0 ;; esac
