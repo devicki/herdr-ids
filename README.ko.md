@@ -23,7 +23,7 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ID를 표시할 페인이 있는 머신이나 계정마다 설치하세요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.4.2
+herdr plugin install devicki/herdr-ids --ref v0.5.0
 ```
 
 `--ref`는 설치할 릴리스를 고정해요. 빼면 `main` 브랜치의 최신 코드가 설치돼요. 릴리스 목록은 [tags](https://github.com/devicki/herdr-ids/tags)에서 볼 수 있어요.
@@ -83,8 +83,10 @@ herdr server reload-config
 입력 중인 페인(예: 에이전트 입력창)에서 단축키를 누르세요.
 
 - 글자를 입력하면 ID와 `스페이스 / 탭 / 페인` 경로 전체에서 퍼지 검색해요. 커서는 지금 있는 페인에서 시작해요.
-- 오른쪽에는 커서가 올라간 페인의 현재 화면이 미리보기로 보여요.
+- 오른쪽에는 커서가 올라간 페인의 현재 화면이 미리보기로 보여요. 스페이스나 탭 줄에서는 그 스페이스·탭에서 포커스된 페인을 보여 주고, 첫 줄에 그 페인 ID를 적어요.
 - Enter를 누르면 `herdr:dev-server(w1:p2) `가 입력창에 들어가요. 전송은 하지 않으니 이어서 요청을 마저 쓰면 돼요. Esc를 누르면 취소돼요.
+- Tab으로 여러 개를 표시한 뒤 Enter를 누르면 공백으로 이어서 한 번에 들어가요: `herdr:claude(w1:p1) herdr:dev-server(w1:p2) `.
+- Ctrl+O를 누르면 입력하는 대신 커서가 있는 페인·탭·스페이스로 바로 이동해요. 이동 도구로도 쓸 수 있어요. Alt+Enter도 같아요. (Ctrl+Enter는 터미널이 일반 Enter와 똑같이 보내서 쓸 수 없어요.) 에이전트가 없는 페인은 `nc`로 Herdr 소켓에 요청해 이동하고, `nc`가 없으면 그 페인의 탭까지만 이동해요.
 - 에이전트 페인은 Herdr가 붙인 대화 제목 대신 에이전트 이름으로 들어가요(`herdr:claude(w9:p1)`). 대화 제목은 길고 계속 바뀌기 때문이에요. 다른 페인은 페인 이름, 이름이 없으면 `shell`로 들어가요.
 
 자동으로 이름이 붙은 탭이나 페인 이름을 그대로 쓴 탭처럼 페인 이름이 이미 탭 제목에 들어 있으면, 같은 이름을 반복하지 않고 에이전트가 있을 때만 에이전트 이름을 덧붙여요. 목록에는 팝업을 연 Herdr 서버의 항목만 나와요. 여러 머신을 쓰는 경우 지금 머신의 페인만 보여요.
@@ -110,7 +112,7 @@ fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 Herdr에는 업데이트 명령이 없어서, 새 태그로 다시 설치하면 돼요. 다시 설치해도 `pick.conf`와 켜짐/꺼짐 상태는 그대로 남아요. 설치된 버전은 `herdr plugin list`로 확인할 수 있어요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.4.2 --yes
+herdr plugin install devicki/herdr-ids --ref v0.5.0 --yes
 herdr plugin uninstall devicki.ids
 ```
 
@@ -128,8 +130,10 @@ herdr plugin uninstall devicki.ids
 
 ```sh
 herdr plugin link .
-./test.sh   # 임시 세션에서 서버 시작, 새 페인, 워크스페이스 간 이동, 재시작을 확인해요
+./test.sh   # 임시 세션에서 서버 시작, 선택 팝업, 새 페인, 워크스페이스 간 이동, 재시작을 확인해요
 ```
+
+`test.sh`는 `tmux`로 선택 팝업을 직접 조작해서(여러 개 선택, Ctrl+O로 다른 스페이스의 페인 이동) 확인하기 때문에 `tmux`와 `fzf`가 필요해요.
 
 릴리스할 때는 `herdr-plugin.toml`의 `version`을 올리고, 두 README의 `--ref`를 바꿔 커밋한 뒤 `git tag -a vX.Y.Z -m vX.Y.Z && git push origin vX.Y.Z`를 실행하세요.
 
