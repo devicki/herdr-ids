@@ -10,10 +10,12 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:${PATH:-}"
 
 H="${HERDR_BIN_PATH:-herdr}"
 
-# Settings live in $HERDR_PLUGIN_CONFIG_DIR/pick.conf, one `key = value` per line.
+# Settings live in $HERDR_PLUGIN_CONFIG_DIR/pick.conf, one `key = value` per line; ` #` starts a
+# note, so `#` inside a value (fzf colors) is kept.
 conf() {
   local f="${HERDR_PLUGIN_CONFIG_DIR:-}/pick.conf"
-  [ -f "$f" ] && sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$f" | tail -n1
+  [ -f "$f" ] && sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$f" |
+    sed -e 's/[[:space:]]#.*$//' -e 's/[[:space:]]*$//' | tail -n1
 }
 
 case "${1:-}" in
@@ -24,8 +26,14 @@ open)
   set -- --placement popup
   w=$(conf width) && [ -n "$w" ] && set -- "$@" --width "$w"
   h=$(conf height) && [ -n "$h" ] && set -- "$@" --height "$h"
-  exec "$H" plugin pane open --plugin "${HERDR_PLUGIN_ID:-devicki.ids}" --entrypoint picker \
-    "$@" --env IDS_TARGET="$target" >/dev/null
+  # An action has nowhere to print, so a popup Herdr refuses (another one open, say) is a toast.
+  err=$("$H" plugin pane open --plugin "${HERDR_PLUGIN_ID:-devicki.ids}" --entrypoint picker \
+    "$@" --env IDS_TARGET="$target" 2>&1 >/dev/null) || {
+    msg=$(jq -r '.error.message // empty' <<<"$err" 2>/dev/null)
+    "$H" notification show "ids: the picker did not open" --body "${msg:-$err}" >/dev/null 2>&1
+    echo "ids: ${msg:-$err}" >&2
+    exit 1
+  }
   ;;
 preview)
   case "${2:-}" in *:p*) ;; *) exit 0 ;; esac
@@ -48,18 +56,21 @@ self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 # One line per item in tree order: id, name, and the line shown (colored id, dimmed ancestors).
 # A pane whose name the tab title already carries (auto-titled tabs, a tab named after its only
 # pane) adds just its agent, if any, instead of repeating the name.
+# Tabs and newlines in names would break the row, so they become spaces.
 rows=$("$H" api snapshot | jq -r '
+  def clean: gsub("[\t\n\r]"; " ");
   def id($i): "\u001b[36m\(($i + "       ")[0:7])\u001b[0m ";
   def dim($s): "\u001b[2m\($s)\u001b[0m";
   (.result.snapshot // .result) as $s
   | $s.workspaces[] as $w
-  | [$w.workspace_id, $w.label, id($w.workspace_id) + "\u001b[1m\($w.label)\u001b[0m"],
-    ($s.tabs[] | select(.workspace_id == $w.workspace_id) as $t
-      | [$t.tab_id, $t.label, id($t.tab_id) + dim("\($w.label) / ") + $t.label],
-        ($s.panes[] | select(.tab_id == $t.tab_id) | (.label // .agent // "shell") as $n
-          | (if ($t.label | contains($n)) then .agent else $n end) as $leaf
-          | [.pane_id, $n, id(.pane_id) + dim("\($w.label) / ") + if $leaf then dim("\($t.label) / ") + $leaf else $t.label end]))
-  | @tsv') || exit 1
+  | ($w.label | clean) as $wl
+  | [$w.workspace_id, $wl, id($w.workspace_id) + "\u001b[1m\($wl)\u001b[0m"],
+    ($s.tabs[] | select(.workspace_id == $w.workspace_id) as $t | ($t.label | clean) as $tl
+      | [$t.tab_id, $tl, id($t.tab_id) + dim("\($wl) / ") + $tl],
+        ($s.panes[] | select(.tab_id == $t.tab_id) | (.label // .agent // "shell" | clean) as $n
+          | (if ($tl | contains($n)) then .agent else $n end) as $leaf
+          | [.pane_id, $n, id(.pane_id) + dim("\($wl) / ") + if $leaf then dim("\($tl) / ") + $leaf else $tl end]))
+  | join("\t")') || exit 1
 
 # Start on the pane the picker was opened from.
 start=$(awk -F'\t' -v t="$target" '$1 == t { print NR; exit }' <<<"$rows")
@@ -74,8 +85,9 @@ pick=$(FZF_DEFAULT_OPTS="--layout=reverse --no-hscroll --prompt='herdr> ' --prev
   --preview "bash $(printf %q "$self") preview {1}") || exit 0
 
 IFS=$'\t' read -r id name _ <<<"$pick"
-text=$(conf template)
-[ -n "$text" ] || text='herdr:{name}({id})'
-text=${text//\{name\}/$name}
-text=${text//\{id\}/$id}
+tpl=$(conf template)
+# In one pass, so a name that contains "{id}" stays as it is.
+[ -n "$tpl" ] || tpl='herdr:{name}({id})'
+text=$(jq -rn --arg t "$tpl" --arg name "$name" --arg id "$id" \
+  '$t | gsub("\\{(?<k>name|id)\\}"; if .k == "name" then $name else $id end)') || exit 1
 "$H" pane send-text "$target" "$text " >/dev/null

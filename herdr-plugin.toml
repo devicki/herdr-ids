@@ -1,6 +1,6 @@
 id = "devicki.ids"
 name = "ids"
-version = "0.3.4"
+version = "0.3.5"
 min_herdr_version = "0.9.1"
 platforms = ["linux", "macos"]
 description = "Show pane and workspace ids in the sidebar, and pick a space, tab or pane to type its id into your agent."

@@ -11,7 +11,7 @@ Herdr has no built-in sidebar token for ids. This plugin reports them as custom 
 ## Requirements
 
 - Herdr 0.9.1 or newer, on Linux or macOS. Windows is not supported; run Herdr in WSL there.
-- `bash` (3.2, the macOS default, is enough) and `jq`
+- `bash` (3.2, the macOS default, is enough) and `jq` 1.6 or newer
 - [`fzf`](https://github.com/junegunn/fzf) 0.36 or newer for the picker. Ubuntu 22.04 ships 0.29, which is too old; get a newer one from Homebrew or the fzf releases.
 
 ## Setup
@@ -23,7 +23,7 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.4
+herdr plugin install devicki/herdr-ids --ref v0.3.5
 ```
 
 `--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
@@ -90,7 +90,7 @@ When a pane's name is already part of its tab's title, as with auto-titled tabs 
 
 ## Settings
 
-Customize the picker in `$(herdr plugin config-dir devicki.ids)/pick.conf`, one `key = value` per line. Every key is optional:
+Customize the picker in `$(herdr plugin config-dir devicki.ids)/pick.conf`, one `key = value` per line; ` #` after a value starts a note. The plugin creates the file with every key commented out the first time it runs. Every key is optional:
 
 ```
 # what Enter types; {name} and {id} are filled in
@@ -109,7 +109,7 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.4 --yes
+herdr plugin install devicki/herdr-ids --ref v0.3.5 --yes
 herdr plugin uninstall devicki.ids
 ```
 
@@ -121,6 +121,7 @@ Tokens are runtime metadata, so the startup hook writes them for every pane and 
 
 - **No ids in the sidebar**: check that step 2 went into the config of the Herdr that draws your sidebar, and run `herdr plugin action invoke devicki.ids.sync` on the machine whose panes are missing them.
 - **Garbled rows under a Korean, Japanese or Chinese locale**: fzf counts ambiguous-width glyphs such as `·`, `›` and `│` as two columns in these locales, while Herdr draws them as one. The picker sets `RUNEWIDTH_EASTASIAN=0` for fzf to match. If your setup really draws them two columns wide, set `RUNEWIDTH_EASTASIAN=1` in the Herdr server's environment.
+- **The picker does not open**: the reason Herdr gives goes to a toast (turn toasts on with `[ui.toast] delivery`) and to `herdr plugin log list --plugin devicki.ids`.
 
 ## Development
 

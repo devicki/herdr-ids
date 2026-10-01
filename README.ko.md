@@ -11,7 +11,7 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ## 필요한 것
 
 - Herdr 0.9.1 이상 (Linux, macOS). Windows는 지원하지 않으니 WSL에서 Herdr를 실행하세요.
-- `bash`(macOS 기본인 3.2로 충분해요), `jq`
+- `bash`(macOS 기본인 3.2로 충분해요), `jq` 1.6 이상
 - [`fzf`](https://github.com/junegunn/fzf) 0.36 이상 (대상 선택 팝업에 필요). Ubuntu 22.04의 기본 fzf는 0.29라 너무 오래됐어요. Homebrew나 fzf 릴리스에서 새 버전을 설치하세요.
 
 ## 설정
@@ -23,7 +23,7 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ID를 표시할 페인이 있는 머신이나 계정마다 설치하세요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.4
+herdr plugin install devicki/herdr-ids --ref v0.3.5
 ```
 
 `--ref`는 설치할 릴리스를 고정해요. 빼면 `main` 브랜치의 최신 코드가 설치돼요. 릴리스 목록은 [tags](https://github.com/devicki/herdr-ids/tags)에서 볼 수 있어요.
@@ -90,7 +90,7 @@ herdr server reload-config
 
 ## 세부 설정
 
-팝업은 `$(herdr plugin config-dir devicki.ids)/pick.conf`에서 바꿀 수 있어요. 한 줄에 `키 = 값` 하나씩 쓰고, 모든 항목은 선택이에요.
+팝업은 `$(herdr plugin config-dir devicki.ids)/pick.conf`에서 바꿀 수 있어요. 한 줄에 `키 = 값` 하나씩 쓰고, 값 뒤의 ` #`부터는 메모로 무시해요. 플러그인을 처음 실행하면 모든 항목이 주석 처리된 파일을 만들어 둬요. 모든 항목은 선택이에요.
 
 ```
 # Enter를 눌렀을 때 입력되는 문자열. {name}과 {id}가 채워져요
@@ -109,7 +109,7 @@ fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 Herdr에는 업데이트 명령이 없어서, 새 태그로 다시 설치하면 돼요. 다시 설치해도 `pick.conf`와 켜짐/꺼짐 상태는 그대로 남아요. 설치된 버전은 `herdr plugin list`로 확인할 수 있어요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.3.4 --yes
+herdr plugin install devicki/herdr-ids --ref v0.3.5 --yes
 herdr plugin uninstall devicki.ids
 ```
 
@@ -121,6 +121,7 @@ herdr plugin uninstall devicki.ids
 
 - **사이드바에 ID가 안 보여요**: 2단계 설정을 사이드바를 그리는 쪽 Herdr 설정에 넣었는지 확인하세요. 그다음 ID가 빠진 페인이 있는 머신에서 `herdr plugin action invoke devicki.ids.sync`를 실행하세요.
 - **한국어·일본어·중국어 로케일에서 줄이 깨져 보여요**: 이 로케일에서 fzf는 `·`, `›`, `│` 같은 폭이 모호한 글자를 2칸으로 계산하는데, Herdr는 1칸으로 그려요. 그래서 팝업은 fzf에 `RUNEWIDTH_EASTASIAN=0`을 설정해 둘을 맞춰요. 실제로 이 글자들을 2칸으로 그리는 환경이라면 Herdr 서버 환경 변수에 `RUNEWIDTH_EASTASIAN=1`을 설정하세요.
+- **팝업이 안 열려요**: Herdr가 알려 준 이유가 토스트 알림(`[ui.toast] delivery`로 켜기)과 `herdr plugin log list --plugin devicki.ids`에 남아요.
 
 ## 개발
 
