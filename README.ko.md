@@ -4,7 +4,7 @@
 
 ![herdr-ids: 사이드바의 ID, 그리고 페인을 골라 에이전트에게 넘기는 과정](docs/demo.svg)
 
-[Herdr](https://herdr.dev) 사이드바에 페인·탭·워크스페이스 ID(`w9:p1`, `w9:t2`, `w9`)를 보여 주고, 원하는 스페이스·탭·페인을 골라 그 ID를 에이전트 입력창에 넣어 주는 플러그인이에요. 예를 들어 "herdr:dev-server(w1:p2)의 테스트 결과 확인해 줘"처럼 대상을 바로 지정할 수 있어요.
+[Herdr](https://herdr.dev) 사이드바에 페인·탭·워크스페이스 ID(`w9:p1`, `w9:t2`, `w9`)를 보여 주고, 원하는 스페이스·탭·페인을 골라 그 ID를 에이전트 입력창에 넣어 주는 플러그인이에요. 예를 들어 "herdr pane w1:p2 (dev-server)의 테스트 결과 확인해 줘"처럼 대상을 바로 지정할 수 있어요.
 
 Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 플러그인은 모든 페인에 `$pane_id`와 `$tab_id`(그 페인이 속한 탭), 모든 워크스페이스에 `$workspace_id`를 사용자 토큰으로 기록하고, 페인이 바뀔 때마다 최신 상태로 맞춰요. Herdr는 탭 자체에는 메타데이터를 받지 않아서, 탭 ID는 각 페인 줄에 함께 표시해요.
 
@@ -23,7 +23,7 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ID를 표시할 페인이 있는 머신이나 계정마다 설치하세요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.5.0
+herdr plugin install devicki/herdr-ids --ref v0.6.0
 ```
 
 `--ref`는 설치할 릴리스를 고정해요. 빼면 `main` 브랜치의 최신 코드가 설치돼요. 릴리스 목록은 [tags](https://github.com/devicki/herdr-ids/tags)에서 볼 수 있어요.
@@ -84,10 +84,10 @@ herdr server reload-config
 
 - 글자를 입력하면 ID와 `스페이스 / 탭 / 페인` 경로 전체에서 퍼지 검색해요. 커서는 지금 있는 페인에서 시작해요.
 - 오른쪽에는 커서가 올라간 페인의 현재 화면이 미리보기로 보여요. 스페이스나 탭 줄에서는 그 스페이스·탭에서 포커스된 페인을 보여 주고, 첫 줄에 그 페인 ID를 적어요.
-- Enter를 누르면 `herdr:dev-server(w1:p2) `가 입력창에 들어가요. 전송은 하지 않으니 이어서 요청을 마저 쓰면 돼요. Esc를 누르면 취소돼요.
-- Tab으로 여러 개를 표시한 뒤 Enter를 누르면 공백으로 이어서 한 번에 들어가요: `herdr:claude(w1:p1) herdr:dev-server(w1:p2) `.
+- Enter를 누르면 `herdr pane w1:p2 (dev-server) `가 입력창에 들어가요. 전송은 하지 않으니 이어서 요청을 마저 쓰면 돼요. Esc를 누르면 취소돼요.
+- Tab으로 여러 개를 표시한 뒤 Enter를 누르면 쉼표로 이어서 한 번에 들어가요: `herdr agent w1:p1 (claude), herdr pane w1:p2 (dev-server) `.
 - Ctrl+O를 누르면 입력하는 대신 커서가 있는 페인·탭·스페이스로 바로 이동해요. 이동 도구로도 쓸 수 있어요. Alt+Enter도 같아요. (Ctrl+Enter는 터미널이 일반 Enter와 똑같이 보내서 쓸 수 없어요.) 에이전트가 없는 페인은 `nc`로 Herdr 소켓에 요청해 이동하고, `nc`가 없으면 그 페인의 탭까지만 이동해요.
-- 에이전트 페인은 Herdr가 붙인 대화 제목 대신 에이전트 이름으로 들어가요(`herdr:claude(w9:p1)`). 대화 제목은 길고 계속 바뀌기 때문이에요. 다른 페인은 페인 이름, 이름이 없으면 `shell`로 들어가요.
+- 입력되는 형식은 받는 에이전트가 알아보기 쉽게 Herdr CLI의 용어 그대로예요. 종류(`agent`, `pane`, `tab`, `workspace`)와 명령에 바로 쓰는 ID가 들어가서, `herdr agent w9:p1 (claude)`를 받은 에이전트는 곧바로 `herdr agent read w9:p1`을 쓸 수 있어요. 괄호 안 이름은 참고용이에요. 에이전트 페인은 Herdr가 붙인 길고 계속 바뀌는 대화 제목 대신 에이전트 이름을, 탭은 제목의 첫 부분을 써요(`herdr tab w4:t2 (develop)`). 에이전트 명령은 `claude` 같은 에이전트 종류를 대상으로 받지 않아서, 그런 이름을 대상처럼 쓰지 않아요.
 
 자동으로 이름이 붙은 탭이나 페인 이름을 그대로 쓴 탭처럼 페인 이름이 이미 탭 제목에 들어 있으면, 같은 이름을 반복하지 않고 에이전트가 있을 때만 에이전트 이름을 덧붙여요. 목록에는 팝업을 연 Herdr 서버의 항목만 나와요. 여러 머신을 쓰는 경우 지금 머신의 페인만 보여요.
 
@@ -96,8 +96,8 @@ herdr server reload-config
 팝업은 `$(herdr plugin config-dir devicki.ids)/pick.conf`에서 바꿀 수 있어요. 한 줄에 `키 = 값` 하나씩 쓰고, 값 뒤의 ` #`부터는 메모로 무시해요. 플러그인을 처음 실행하면 모든 항목이 주석 처리된 파일을 만들어 둬요. 모든 항목은 선택이에요.
 
 ```
-# Enter를 눌렀을 때 입력되는 문자열. {name}과 {id}가 채워져요
-template = herdr:{name}({id})
+# Enter를 눌렀을 때 입력되는 문자열. {kind}, {id}, {name}이 채워져요 (예전 기본값은 herdr:{name}({id}))
+template = herdr {kind} {id} ({name})
 # 팝업 크기. 칸 수나 퍼센트로 지정해요
 width = 90%
 height = 70%
@@ -112,7 +112,7 @@ fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 Herdr에는 업데이트 명령이 없어서, 새 태그로 다시 설치하면 돼요. 다시 설치해도 `pick.conf`와 켜짐/꺼짐 상태는 그대로 남아요. 설치된 버전은 `herdr plugin list`로 확인할 수 있어요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.5.0 --yes
+herdr plugin install devicki/herdr-ids --ref v0.6.0 --yes
 herdr plugin uninstall devicki.ids
 ```
 

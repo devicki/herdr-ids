@@ -49,7 +49,7 @@ herdr workspace focus "${p1%%:*}" >/dev/null
 picker
 "${tmx[@]}" send-keys Tab Tab Enter
 sleep 1
-n=$(herdr pane read "$p1" --source visible | grep -o 'herdr:[^( ]*([^)]*)' | wc -l)
+n=$(herdr pane read "$p1" --source visible | grep -o -E 'herdr (agent|pane|tab|workspace) [^ ,]+' | wc -l)
 [ "$n" -eq 2 ] || { echo "FAIL: picking two items typed $n reference(s)" >&2; exit 1; }
 picker
 "${tmx[@]}" send-keys -l "^$other"

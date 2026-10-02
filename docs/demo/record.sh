@@ -83,7 +83,7 @@ sleep 0.6
 keys C-b; sleep 0.25; keys i; sleep 2         # the picker opens on this pane
 type_ tests 0.14; sleep 1
 keys Down; sleep 2.5                          # preview: the failing test
-keys Enter; sleep 1                           # herdr:tests(w1:p2) lands in the prompt
+keys Enter; sleep 1                           # "herdr pane w1:p2 (tests)" lands in the prompt
 type_ "and fix it."; sleep 0.8
 keys Enter; sleep 5                           # the agent reads w1:p2 through the herdr CLI
 kill "$capture"

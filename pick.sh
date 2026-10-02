@@ -59,11 +59,13 @@ awk -v v="$v" 'BEGIN { split(v, n, "."); exit !(n[1] > 0 || n[2] >= 36) }' ||
   { echo "ids: the picker needs fzf 0.36 or newer (found $v)" >&2; read -r -n1; exit 1; }
 self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 
-# One line per item in tree order: id, name, the line shown (colored id, dimmed ancestors), and the
-# pane the preview shows (a space's or tab's focused pane).
+# One line per item in tree order: id, name, the line shown (colored id, dimmed ancestors), the
+# pane the preview shows (a space's or tab's focused pane), and its kind for `herdr <kind> <id>`:
+# agent, pane, tab or workspace.
 # A pane whose name the tab title already carries (auto-titled tabs, a tab named after its only
-# pane) adds just its agent, if any, instead of repeating the name. What Enter types names an
-# agent's pane by its agent: Herdr labels it with the conversation title, which is long and changes.
+# pane) adds just its agent, if any, instead of repeating the name. What Enter types keeps names
+# short: Herdr titles agent panes and tabs after the conversation ("2 · develop › claude › ..."),
+# long and changing, so an agent's pane goes by its agent and a tab by its first title part.
 # Tabs and newlines in names would break the row, so they become spaces.
 rows=$("$H" api snapshot | jq -r '
   def clean: gsub("[\t\n\r]"; " ");
@@ -73,12 +75,13 @@ rows=$("$H" api snapshot | jq -r '
   | ([$s.layouts[]? | {key: .tab_id, value: .focused_pane_id}] | from_entries) as $fp
   | $s.workspaces[] as $w
   | ($w.label | clean) as $wl
-  | [$w.workspace_id, $wl, id($w.workspace_id) + "\u001b[1m\($wl)\u001b[0m", $fp[$w.active_tab_id // ""] // ""],
+  | [$w.workspace_id, $wl, id($w.workspace_id) + "\u001b[1m\($wl)\u001b[0m", $fp[$w.active_tab_id // ""] // "", "workspace"],
     ($s.tabs[] | select(.workspace_id == $w.workspace_id) as $t | ($t.label | clean) as $tl
-      | [$t.tab_id, $tl, id($t.tab_id) + dim("\($wl) / ") + $tl, $fp[$t.tab_id] // ""],
+      | [$t.tab_id, ($tl | sub("^[0-9]+ · "; "") | split(" › ")[0]), id($t.tab_id) + dim("\($wl) / ") + $tl, $fp[$t.tab_id] // "", "tab"],
         ($s.panes[] | select(.tab_id == $t.tab_id) | (.label // .agent // "shell" | clean) as $n
           | (if ($tl | contains($n)) then .agent else $n end) as $leaf
-          | [.pane_id, (.agent // $n | clean), id(.pane_id) + dim("\($wl) / ") + if $leaf then dim("\($tl) / ") + $leaf else $tl end, .pane_id]))
+          | [.pane_id, (.agent // $n | clean), id(.pane_id) + dim("\($wl) / ") + if $leaf then dim("\($tl) / ") + $leaf else $tl end, .pane_id,
+             (if .agent then "agent" else "pane" end)]))
   | join("\t")') || exit 1
 
 # Start on the pane the picker was opened from.
@@ -117,9 +120,13 @@ if [ -n "$key" ]; then
   exit 0
 fi
 
+# Written for the agent that reads it: the Herdr CLI's own nouns and the ID its commands take
+# (`herdr agent read wD:p3`), the name only as a hint. A bare `devin` would read as a target, and
+# agent commands refuse agent kinds.
 tpl=$(conf template)
-[ -n "$tpl" ] || tpl='herdr:{name}({id})'
-# Each pick in one pass, so a name that contains "{id}" stays as it is; several are space-separated.
-text=$(cut -f1,2 <<<"$sel" | jq -Rrn --arg t "$tpl" '[inputs | split("\t") as [$id, $name]
-  | $t | gsub("\\{(?<k>name|id)\\}"; if .k == "name" then $name else $id end)] | join(" ")') || exit 1
+[ -n "$tpl" ] || tpl='herdr {kind} {id} ({name})'
+# Each pick in one pass, so a name that contains "{id}" stays as it is; several are comma-separated.
+text=$(cut -f1,2,5 <<<"$sel" | jq -Rrn --arg t "$tpl" '[inputs | split("\t") as [$id, $name, $kind]
+  | $t | gsub("\\{(?<k>name|id|kind)\\}"; if .k == "name" then $name elif .k == "id" then $id else $kind end)
+  | sub(" \\(\\)$"; "")] | join(", ")') || exit 1
 "$H" pane send-text "$target" "$text " >/dev/null

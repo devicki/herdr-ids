@@ -4,7 +4,7 @@ English | [한국어](README.ko.md)
 
 ![herdr-ids: ids in the sidebar, and picking a pane to hand to an agent](docs/demo.svg)
 
-Show [Herdr](https://herdr.dev) pane, tab and workspace ids (`w9:p1`, `w9:t2`, `w9`) in the sidebar, and pick any space, tab or pane to type its id into your agent: "check the tests in herdr:dev-server(w1:p2)".
+Show [Herdr](https://herdr.dev) pane, tab and workspace ids (`w9:p1`, `w9:t2`, `w9`) in the sidebar, and pick any space, tab or pane to type a reference to it into your agent: "check the tests in herdr pane w1:p2 (dev-server)".
 
 Herdr has no built-in sidebar token for ids. This plugin reports them as custom metadata tokens, `$pane_id` and `$tab_id` (its tab) on every pane and `$workspace_id` on every workspace, and keeps them current. Herdr takes no metadata on tabs themselves, so the tab id rides on each pane's row.
 
@@ -23,7 +23,7 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.5.0
+herdr plugin install devicki/herdr-ids --ref v0.6.0
 ```
 
 `--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
@@ -84,10 +84,10 @@ Press the key in the pane you are typing into, for example an agent's prompt:
 
 - Type to fuzzy-search the id and the `space / tab / pane` path. The cursor starts on your own pane.
 - The right side previews the highlighted pane's screen. On a space or tab it shows that space's or tab's focused pane, named on the first line.
-- Enter types `herdr:dev-server(w1:p2) ` into your pane without submitting it, so you can finish the sentence. Esc cancels.
-- Tab marks several items; Enter then types them all, space-separated: `herdr:claude(w1:p1) herdr:dev-server(w1:p2) `.
+- Enter types `herdr pane w1:p2 (dev-server) ` into your pane without submitting it, so you can finish the sentence. Esc cancels.
+- Tab marks several items; Enter then types them all, comma-separated: `herdr agent w1:p1 (claude), herdr pane w1:p2 (dev-server) `.
 - Ctrl+O goes to the highlighted pane, tab or space instead of typing it, so the picker doubles as a jump list. Alt+Enter does the same. (Ctrl+Enter cannot be used: terminals send it as a plain Enter.) A pane without an agent is focused through Herdr's socket with `nc`; without `nc`, the jump lands on its tab.
-- An agent's pane goes in under its agent, `herdr:claude(w9:p1)`, not under the conversation title Herdr shows for it, which is long and keeps changing. Other panes go in under their name, or `shell`.
+- The reference is written for the agent that reads it, in the Herdr CLI's own words: the kind (`agent`, `pane`, `tab` or `workspace`) and the ID its commands take, so `herdr agent w9:p1 (claude)` leads straight to `herdr agent read w9:p1`. The name in parentheses is only a hint. An agent's pane carries its agent, not the conversation title Herdr shows for it, which is long and keeps changing; a tab carries the first part of its title (`herdr tab w4:t2 (develop)`). A bare `claude` is not used as the target, since agent commands refuse agent kinds.
 
 When a pane's name is already part of its tab's title, as with auto-titled tabs or a tab named after its only pane, the line adds only the pane's agent, if it has one, instead of repeating the name. The picker lists the Herdr server it runs on, so with several machines you see the current machine's panes.
 
@@ -96,8 +96,8 @@ When a pane's name is already part of its tab's title, as with auto-titled tabs 
 Customize the picker in `$(herdr plugin config-dir devicki.ids)/pick.conf`, one `key = value` per line; ` #` after a value starts a note. The plugin creates the file with every key commented out the first time it runs. Every key is optional:
 
 ```
-# what Enter types; {name} and {id} are filled in
-template = herdr:{name}({id})
+# what Enter types; {kind}, {id} and {name} are filled in (herdr:{name}({id}) was the old default)
+template = herdr {kind} {id} ({name})
 # popup size, in cells or as a percentage
 width = 90%
 height = 70%
@@ -112,7 +112,7 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.5.0 --yes
+herdr plugin install devicki/herdr-ids --ref v0.6.0 --yes
 herdr plugin uninstall devicki.ids
 ```
 

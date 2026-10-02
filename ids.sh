@@ -16,8 +16,9 @@ if [ -n "${HERDR_PLUGIN_CONFIG_DIR:-}" ] && [ ! -e "$conf" ] && mkdir -p "$HERDR
 # ids picker settings: one `key = value` per line, all optional. Lines starting with # are ignored,
 # and ` #` after a value starts a note.
 #
-# What Enter types; {name} and {id} are filled in. Default: herdr:{name}({id})
-# template = {id}
+# What Enter types; {kind} (agent, pane, tab, workspace), {id} and {name} are filled in.
+# Default: herdr {kind} {id} ({name})
+# template = herdr:{name}({id})
 #
 # Popup size, in cells or as a percentage. Default: 90% wide, 70% tall.
 # width = 120
