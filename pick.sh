@@ -62,8 +62,9 @@ self="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 # One line per item in tree order: id, name, the line shown (colored id, dimmed ancestors), the
 # pane the preview shows (a space's or tab's focused pane), and its kind for `herdr <kind> <id>`:
 # agent, pane, tab or workspace.
-# A pane whose name the tab title already carries (auto-titled tabs, a tab named after its only
-# pane) adds just its agent, if any, instead of repeating the name. What Enter types keeps names
+# A tab with one pane is listed once, as its pane: its own row would read the same. A pane whose
+# name the tab title already carries (auto-titled tabs) adds just its agent, if any, instead of
+# repeating the name; in a tab of several panes it adds its name then, to tell it from the tab. What Enter types keeps names
 # short: Herdr titles agent panes and tabs after the conversation ("2 · develop › claude › ..."),
 # long and changing, so an agent's pane goes by its agent and a tab by its first title part.
 # Tabs and newlines in names would break the row, so they become spaces.
@@ -77,9 +78,10 @@ rows=$("$H" api snapshot | jq -r '
   | ($w.label | clean) as $wl
   | [$w.workspace_id, $wl, id($w.workspace_id) + "\u001b[1m\($wl)\u001b[0m", $fp[$w.active_tab_id // ""] // "", "workspace"],
     ($s.tabs[] | select(.workspace_id == $w.workspace_id) as $t | ($t.label | clean) as $tl
-      | [$t.tab_id, ($tl | sub("^[0-9]+ · "; "") | split(" › ")[0]), id($t.tab_id) + dim("\($wl) / ") + $tl, $fp[$t.tab_id] // "", "tab"],
+      | ([$s.panes[] | select(.tab_id == $t.tab_id)] | length) as $np
+      | (if $np > 1 then [$t.tab_id, ($tl | sub("^[0-9]+ · "; "") | split(" › ")[0]), id($t.tab_id) + dim("\($wl) / ") + $tl, $fp[$t.tab_id] // "", "tab"] else empty end),
         ($s.panes[] | select(.tab_id == $t.tab_id) | (.label // .agent // "shell" | clean) as $n
-          | (if ($tl | contains($n)) then .agent else $n end) as $leaf
+          | (if ($tl | contains($n)) then (if $np > 1 then .agent // $n else .agent end) else $n end) as $leaf
           | [.pane_id, (.agent // $n | clean), id(.pane_id) + dim("\($wl) / ") + if $leaf then dim("\($tl) / ") + $leaf else $tl end, .pane_id,
              (if .agent then "agent" else "pane" end)]))
   | join("\t")') || exit 1

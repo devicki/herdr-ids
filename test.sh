@@ -47,6 +47,10 @@ herdr pane split "$p1" --direction right --no-focus >/dev/null
 other=$(herdr workspace create --cwd "$PWD" --no-focus | jq -r .result.root_pane.pane_id)
 herdr workspace focus "${p1%%:*}" >/dev/null
 picker
+# A tab with a single pane is listed once, as its pane.
+screen=$("${tmx[@]}" capture-pane -p)
+grep -q "$other" <<<"$screen" && ! grep -q "${other%%:*}:t1" <<<"$screen" ||
+  { echo "FAIL: a single-pane tab is listed beside its pane" >&2; exit 1; }
 "${tmx[@]}" send-keys Tab Tab Enter
 sleep 1
 n=$(herdr pane read "$p1" --source visible | grep -o -E 'herdr (agent|pane|tab|workspace) [^ ,]+' | wc -l)

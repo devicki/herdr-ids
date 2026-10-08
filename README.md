@@ -23,7 +23,7 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.6.0
+herdr plugin install devicki/herdr-ids --ref v0.6.1
 ```
 
 `--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
@@ -89,7 +89,7 @@ Press the key in the pane you are typing into, for example an agent's prompt:
 - Ctrl+O goes to the highlighted pane, tab or space instead of typing it, so the picker doubles as a jump list. Alt+Enter does the same. (Ctrl+Enter cannot be used: terminals send it as a plain Enter.) A pane without an agent is focused through Herdr's socket with `nc`; without `nc`, the jump lands on its tab.
 - The reference is written for the agent that reads it, in the Herdr CLI's own words: the kind (`agent`, `pane`, `tab` or `workspace`) and the ID its commands take, so `herdr agent w9:p1 (claude)` leads straight to `herdr agent read w9:p1`. The name in parentheses is only a hint. An agent's pane carries its agent, not the conversation title Herdr shows for it, which is long and keeps changing; a tab carries the first part of its title (`herdr tab w4:t2 (develop)`). A bare `claude` is not used as the target, since agent commands refuse agent kinds.
 
-When a pane's name is already part of its tab's title, as with auto-titled tabs or a tab named after its only pane, the line adds only the pane's agent, if it has one, instead of repeating the name. The picker lists the Herdr server it runs on, so with several machines you see the current machine's panes.
+A tab with a single pane is listed once, as that pane, since both lines would read the same. When a pane's name is already part of its tab's title, as with auto-titled tabs, the line adds only the pane's agent, if it has one, instead of repeating the name; in a tab with several panes it adds the pane's name then, so each line differs from the tab's. The picker lists the Herdr server it runs on, so with several machines you see the current machine's panes.
 
 ## Settings
 
@@ -112,7 +112,7 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.6.0 --yes
+herdr plugin install devicki/herdr-ids --ref v0.6.1 --yes
 herdr plugin uninstall devicki.ids
 ```
 
