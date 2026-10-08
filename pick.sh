@@ -41,12 +41,24 @@ preview)
   p=${3:-${2:-}}
   case "$p" in *:p*) ;; *) exit 0 ;; esac
   max=${FZF_PREVIEW_LINES:-40}
-  # A space or tab shows its focused pane, named on the first line.
-  if [ "$p" != "${2:-}" ]; then printf '\033[2m%s\033[0m\n' "$p"; max=$((max - 1)); fi
-  # Drop the blank rows under the pane's last output, then keep what fits the preview.
-  "$H" pane read "$p" --source visible --ansi 2>/dev/null | awk -v max="$max" '
-    { line[NR] = $0; t = $0; gsub(/\033\[[0-9;?]*[A-Za-z]/, "", t); if (t ~ /[^[:space:]]/) last = NR }
-    END { for (i = (last > max ? last - max + 1 : 1); i <= last; i++) print line[i] }'
+  # The last lines of a pane that fit: the blank rows under its last output are dropped first.
+  screen() { # pane lines
+    "$H" pane read "$1" --source visible --ansi 2>/dev/null | awk -v max="$2" '
+      { line[NR] = $0; t = $0; gsub(/\033\[[0-9;?]*[A-Za-z]/, "", t); if (t ~ /[^[:space:]]/) last = NR }
+      END { for (i = (last > max ? last - max + 1 : 1); i <= last; i++) print line[i] }'
+  }
+  if [ "$p" = "${2:-}" ]; then screen "$p" "$max"; exit 0; fi
+  # A space or tab shows every pane of its (active) tab, each under its id and name with its last
+  # lines: one pane's full screen would be cut by the preview and hide the others.
+  panes=$("$H" pane list | jq -r --arg p "$p" '(.result.panes | map(select(.pane_id == $p))[0].tab_id) as $t
+    | .result.panes[] | select(.tab_id == $t) | "\(.pane_id)\t\(.agent // .label // "shell" | gsub("[\t\n\r]"; " "))"')
+  n=$(grep -c . <<<"$panes")
+  each=$(( (max - n) / (n > 0 ? n : 1) ))
+  [ "$each" -ge 1 ] || each=1
+  while IFS=$'\t' read -r id name; do
+    printf '\033[2m── %s  %s\033[0m\n' "$id" "$name"
+    screen "$id" "$each"
+  done <<<"$panes"
   exit 0
   ;;
 esac
@@ -96,7 +108,8 @@ export RUNEWIDTH_EASTASIAN="${RUNEWIDTH_EASTASIAN:-0}"
 # Tab marks several items to type at once; ctrl-o (or alt-enter) goes to the item instead. Terminals
 # send ctrl-enter as plain enter, so it cannot be told apart.
 out=$(FZF_DEFAULT_OPTS="--layout=reverse --no-hscroll --prompt='herdr> ' --preview-window='right,55%,border-left,<50(down,50%,border-top)' \
---header='enter: insert · tab: several · ctrl-o: go to · esc: cancel' $(conf fzf_opts)" \
+--header='enter: insert · tab: several · ctrl-o: go to · ctrl-/: preview' \
+--bind='ctrl-/:change-preview-window(right,80%,border-left|down,80%,border-top|right,55%,border-left)' $(conf fzf_opts)" \
   fzf <<<"$rows" --ansi --delimiter='\t' --with-nth=3 --sync --bind "start:pos(${start:-1}),change:first" \
   --multi --expect=ctrl-o,alt-enter --preview "bash $(printf %q "$self") preview {1} {4}") || exit 0
 key=$(head -n1 <<<"$out")

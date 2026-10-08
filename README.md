@@ -23,7 +23,7 @@ The examples below start from Herdr's default configuration. Herdr's config file
 Run this on every machine or account whose panes you want labeled:
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.6.1
+herdr plugin install devicki/herdr-ids --ref v0.6.2
 ```
 
 `--ref` pins a release. Leave it out to track `main` instead. Releases are listed under [tags](https://github.com/devicki/herdr-ids/tags).
@@ -83,7 +83,7 @@ Restart Herdr if the sidebar does not pick up the change.
 Press the key in the pane you are typing into, for example an agent's prompt:
 
 - Type to fuzzy-search the id and the `space / tab / pane` path. The cursor starts on your own pane.
-- The right side previews the highlighted pane's screen. On a space or tab it shows that space's or tab's focused pane, named on the first line.
+- The right side previews the highlighted pane's screen. On a space or tab it shows every pane of that tab (a space's active one), each under its id and name with its last lines. `ctrl-/` widens the preview to 80%, then moves it below the list, then back.
 - Enter types `herdr pane w1:p2 (dev-server) ` into your pane without submitting it, so you can finish the sentence. Esc cancels.
 - Tab marks several items; Enter then types them all, comma-separated: `herdr agent w1:p1 (claude), herdr pane w1:p2 (dev-server) `.
 - Ctrl+O goes to the highlighted pane, tab or space instead of typing it, so the picker doubles as a jump list. Alt+Enter does the same. (Ctrl+Enter cannot be used: terminals send it as a plain Enter.) A pane without an agent is focused through Herdr's socket with `nc`; without `nc`, the jump lands on its tab.
@@ -112,7 +112,7 @@ By default the popup is 90% wide and 70% tall, and the preview takes the right 5
 Herdr has no update command; reinstall at the new tag. `pick.conf` and the enabled state survive a reinstall, and `herdr plugin list` shows the installed version.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.6.1 --yes
+herdr plugin install devicki/herdr-ids --ref v0.6.2 --yes
 herdr plugin uninstall devicki.ids
 ```
 

@@ -44,6 +44,10 @@ picker() {
   sleep 1.5
 }
 herdr pane split "$p1" --direction right --no-focus >/dev/null
+# A tab's preview shows each of its panes, under its own header.
+t1=$(herdr pane get "$p1" | jq -r .result.pane.tab_id)
+n=$(FZF_PREVIEW_LINES=20 bash "$here/pick.sh" preview "$t1" "$p1" | grep -c '── ')
+[ "$n" -eq 2 ] || { echo "FAIL: the preview of a two-pane tab showed $n pane(s)" >&2; exit 1; }
 other=$(herdr workspace create --cwd "$PWD" --no-focus | jq -r .result.root_pane.pane_id)
 herdr workspace focus "${p1%%:*}" >/dev/null
 picker

@@ -23,7 +23,7 @@ Herdr에는 ID를 사이드바에 표시하는 기본 토큰이 없어요. 이 �
 ID를 표시할 페인이 있는 머신이나 계정마다 설치하세요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.6.1
+herdr plugin install devicki/herdr-ids --ref v0.6.2
 ```
 
 `--ref`는 설치할 릴리스를 고정해요. 빼면 `main` 브랜치의 최신 코드가 설치돼요. 릴리스 목록은 [tags](https://github.com/devicki/herdr-ids/tags)에서 볼 수 있어요.
@@ -83,7 +83,7 @@ herdr server reload-config
 입력 중인 페인(예: 에이전트 입력창)에서 단축키를 누르세요.
 
 - 글자를 입력하면 ID와 `스페이스 / 탭 / 페인` 경로 전체에서 퍼지 검색해요. 커서는 지금 있는 페인에서 시작해요.
-- 오른쪽에는 커서가 올라간 페인의 현재 화면이 미리보기로 보여요. 스페이스나 탭 줄에서는 그 스페이스·탭에서 포커스된 페인을 보여 주고, 첫 줄에 그 페인 ID를 적어요.
+- 오른쪽에는 커서가 올라간 페인의 현재 화면이 미리보기로 보여요. 스페이스나 탭 줄에서는 그 탭(스페이스는 활성 탭)의 모든 페인을 페인마다 ID와 이름 아래 마지막 몇 줄씩 나눠 보여 줘요. `ctrl-/`를 누르면 미리보기가 80%로 넓어지고, 한 번 더 누르면 목록 아래로 내려가고, 다시 누르면 원래대로 돌아와요.
 - Enter를 누르면 `herdr pane w1:p2 (dev-server) `가 입력창에 들어가요. 전송은 하지 않으니 이어서 요청을 마저 쓰면 돼요. Esc를 누르면 취소돼요.
 - Tab으로 여러 개를 표시한 뒤 Enter를 누르면 쉼표로 이어서 한 번에 들어가요: `herdr agent w1:p1 (claude), herdr pane w1:p2 (dev-server) `.
 - Ctrl+O를 누르면 입력하는 대신 커서가 있는 페인·탭·스페이스로 바로 이동해요. 이동 도구로도 쓸 수 있어요. Alt+Enter도 같아요. (Ctrl+Enter는 터미널이 일반 Enter와 똑같이 보내서 쓸 수 없어요.) 에이전트가 없는 페인은 `nc`로 Herdr 소켓에 요청해 이동하고, `nc`가 없으면 그 페인의 탭까지만 이동해요.
@@ -112,7 +112,7 @@ fzf_opts = --border=rounded --color=hl:#7aa2f7 --preview-window=down,40%
 Herdr에는 업데이트 명령이 없어서, 새 태그로 다시 설치하면 돼요. 다시 설치해도 `pick.conf`와 켜짐/꺼짐 상태는 그대로 남아요. 설치된 버전은 `herdr plugin list`로 확인할 수 있어요.
 
 ```sh
-herdr plugin install devicki/herdr-ids --ref v0.6.1 --yes
+herdr plugin install devicki/herdr-ids --ref v0.6.2 --yes
 herdr plugin uninstall devicki.ids
 ```
 
